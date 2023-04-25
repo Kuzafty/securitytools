@@ -1,6 +1,6 @@
 # SECURITYTOOLS
 
-Este proyecto contiene varias clases de utilidad para mejorar la seguridad en aplicaciones web PHP. Las clases incluidas son:
+This project contains several utility classes to improve security in PHP web applications. The included classes are:
 
 - Database
 - Sanitize
@@ -8,11 +8,11 @@ Este proyecto contiene varias clases de utilidad para mejorar la seguridad en ap
 - Ajax
 - Report
 
-## Clase Database
+## Class Database
 
-La clase `Database` proporciona una manera fácil de conectar y realizar consultas en bases de datos MySQL usando PDO. Gestiona la conexión, la preparación y la ejecución de consultas SQL.
+The Database class provides an easy way to connect to and query MySQL databases using PDO. It handles the connection, preparation, and execution of SQL queries.
 
-### Ejemplo de uso
+### Example
 
 ```php
 require_once 'Database.php';
@@ -21,24 +21,24 @@ $db = new Database('localhost', 'my_database', 'username', 'password');
 $results = $db->query('SELECT * FROM users WHERE id = :id', ['id' => 1]);
 ```
 
-## Clase Sanitize
+## Class Sanitize
 
-La clase Sanitize contiene métodos estáticos para limpiar y validar datos de entrada, como números de teléfono, direcciones de correo electrónico, contraseñas, direcciones IP y direcciones físicas.
+The Sanitize class contains static methods for cleaning and validating input data such as phone numbers, email addresses, passwords, IP addresses, and physical addresses.
 
-### Ejemoplo de uso
+### Example
 
 ```php
 require_once 'Sanitize.php';
 
-$sanitizedEmail = Sanitize::sanitize('example@example.com');
+$sanitizedEmail = Sanitize::sanitize('Text that should not contain special characters.');
 $isEmailValid = Sanitize::check('example@example.com', Sanitize::EMAIL);
 ```
 
-## Clase Token
+## Class Token
 
-La clase Token proporciona métodos estáticos para la creación, eliminación y verificación de tokens CSRF.
+The Token class provides static methods for creating, deleting, and verifying CSRF tokens.
 
-### Ejemplo de uso
+### Example
 
 ```php
 require_once 'Token.php';
@@ -49,11 +49,11 @@ $isValid = Token::process($_POST['token_value'], $tokenName);
 $isValidOnTime = Token::processTime($_POST['token_value'], $tokenName, 2);
 ```
 
-## Clase Ajax
+## Class Ajax
 
-La clase Ajax contiene métodos estáticos para facilitar el manejo de las solicitudes AJAX, verificación de tokens CSRF y el envío de respuestas de éxito o error.
+The Ajax class contains static methods to facilitate handling AJAX requests, verifying CSRF tokens, and sending success or error responses.
 
-### Ejemplo de uso
+### Example
 
 ```php
 require_once 'Token.php';
@@ -67,17 +67,17 @@ if (!Ajax::ajax_token($_POST['token_name'], $_POST['token_value'])) {
 }
 ```
 
-## Clase Report
+## Class Report
 
-La clase Report maneja las excepciones y envía al usuario a una página segura, generando un reporte de error en formato JSON si es necesario.
+The Report class handles exceptions and sends the user to a secure page, generating an error report in JSON format if necessary.
 
-### Ejemplo de uso
+### Example
 
 ```php
 require_once 'Report.php';
 
 try {
-    // Código que puede lanzar excepciones
+    // Code that can throw exceptions.
 } catch (Exception $e) {
     Report::handleException($e, 'safe_page.php', 'error_reports');
 }
