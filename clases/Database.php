@@ -7,7 +7,7 @@ class Database {
     private $db_name; // It contains the name of the database.
     private $username; // It contains the username for the database connection.
     private $password; // It contains the password for the database connection.
-    public $conn; // It contains the PDO connection object.
+    public $conn; // It contains the \PDO connection object.
     public $exception; // It contains the exception in case of an error.
 
     /**
@@ -35,10 +35,10 @@ class Database {
     private function connect() {
         $this->conn = null;
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn = new \PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -55,9 +55,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -74,9 +74,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -93,9 +93,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -112,9 +112,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_NUM);
+            $result = $stmt->fetchAll(\PDO::FETCH_NUM);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -131,9 +131,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_BOTH);
+            $result = $stmt->fetchAll(\PDO::FETCH_BOTH);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
