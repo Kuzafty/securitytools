@@ -1,24 +1,24 @@
 <?php
 /**
- * Clase para el manejo de la base de datos.
+ * Class for database handling.
  */
 class Database {
-    private $host; // Contiene el nombre del host de la base de datos
-    private $db_name; // Contiene el nombre de la base de datos
-    private $username; // Contiene el nombre de usuario para la conexión a la base de datos
-    private $password; // Contiene la contraseña para la conexión a la base de datos
-    public $conn; // Contiene el objeto de conexión PDO
-    public $exception; // Contiene la excepción en caso de error
+    private $host; // It contains the name of the database host.
+    private $db_name; // It contains the name of the database.
+    private $username; // It contains the username for the database connection.
+    private $password; // It contains the password for the database connection.
+    public $conn; // It contains the PDO connection object.
+    public $exception; // It contains the exception in case of an error.
 
     /**
-     * Constructor de la clase.
-     * 
-     * @param string $host Host de la base de datos
-     * @param string $db_name Nombre de la base de datos
-     * @param string $username Nombre de usuario de la base de datos
-     * @param string $password Contraseña de la base de datos
-     * @return bool Resultado de la conexión
-     */
+    * Class constructor.
+    *
+    * @param string $host Database host
+    * @param string $db_name Database name
+    * @param string $username Database username
+    * @param string $password Database password
+    * @return bool Connection result
+    */
     public function __construct($host, $db_name, $username, $password) {
         $this->host = $host;
         $this->db_name = $db_name;
@@ -28,10 +28,10 @@ class Database {
     }
 
     /**
-     * Método para conectar a la base de datos.
-     * 
-     * @return bool Resultado de la conexión
-     */
+    * Method to connect to the database.
+    *
+    * @return bool Connection result
+    */
     private function connect() {
         $this->conn = null;
         try {
@@ -45,11 +45,11 @@ class Database {
     }
 
     /**
-     * Método para ejecutar una consulta SQL con parámetros opcionales.
+     * Method to execute an SQL query with optional parameters.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function query($sql, $params = array()) {
         try {
@@ -64,11 +64,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver un único resultado.
+     * Alternative method to execute an SQL query and return a single result.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function querySingle($sql, $params = array()) {
         try {
@@ -83,11 +83,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como objetos.
+     * Alternative method to execute an SQL query and return results as objects.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchObject($sql, $params = array()) {
         try {
@@ -102,11 +102,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como una matriz numerada.
+     * Alternative method to execute an SQL query and return results as a numbered array.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchNum($sql, $params = array()) {
         try {
@@ -121,11 +121,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como una matriz tanto asociativa como numerada.
+     * Alternative method to execute an SQL query and return results as both an associative and numbered array.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchBoth($sql, $params = array()) {
         try {

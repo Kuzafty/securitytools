@@ -3,25 +3,25 @@
 namespace Security;
 
 /**
- * Clase para el manejo de la base de datos.
+ * Class for database handling.
  */
 class Database {
-    private $host; // Contiene el nombre del host de la base de datos
-    private $db_name; // Contiene el nombre de la base de datos
-    private $username; // Contiene el nombre de usuario para la conexión a la base de datos
-    private $password; // Contiene la contraseña para la conexión a la base de datos
-    public $conn; // Contiene el objeto de conexión PDO
-    public $exception; // Contiene la excepción en caso de error
+    private $host; // It contains the name of the database host.
+    private $db_name; // It contains the name of the database.
+    private $username; // It contains the username for the database connection.
+    private $password; // It contains the password for the database connection.
+    public $conn; // It contains the PDO connection object.
+    public $exception; // It contains the exception in case of an error.
 
     /**
-     * Constructor de la clase.
-     * 
-     * @param string $host Host de la base de datos
-     * @param string $db_name Nombre de la base de datos
-     * @param string $username Nombre de usuario de la base de datos
-     * @param string $password Contraseña de la base de datos
-     * @return bool Resultado de la conexión
-     */
+    * Class constructor.
+    *
+    * @param string $host Database host
+    * @param string $db_name Database name
+    * @param string $username Database username
+    * @param string $password Database password
+    * @return bool Connection result
+    */
     public function __construct($host, $db_name, $username, $password) {
         $this->host = $host;
         $this->db_name = $db_name;
@@ -31,10 +31,10 @@ class Database {
     }
 
     /**
-     * Método para conectar a la base de datos.
-     * 
-     * @return bool Resultado de la conexión
-     */
+    * Method to connect to the database.
+    *
+    * @return bool Connection result
+    */
     private function connect() {
         $this->conn = null;
         try {
@@ -48,11 +48,11 @@ class Database {
     }
 
     /**
-     * Método para ejecutar una consulta SQL con parámetros opcionales.
+     * Method to execute an SQL query with optional parameters.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function query($sql, $params = array()) {
         try {
@@ -67,11 +67,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver un único resultado.
+     * Alternative method to execute an SQL query and return a single result.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function querySingle($sql, $params = array()) {
         try {
@@ -86,11 +86,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como objetos.
+     * Alternative method to execute an SQL query and return results as objects.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchObject($sql, $params = array()) {
         try {
@@ -105,11 +105,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como una matriz numerada.
+     * Alternative method to execute an SQL query and return results as a numbered array.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchNum($sql, $params = array()) {
         try {
@@ -124,11 +124,11 @@ class Database {
     }
 
     /**
-     * Método alternativo para ejecutar una consulta SQL y devolver los resultados como una matriz tanto asociativa como numerada.
+     * Alternative method to execute an SQL query and return results as both an associative and numbered array.
      * 
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros opcionales
-     * @return mixed Resultado de la consulta o false en caso de error
+     * @param string $sql SQL query
+     * @param array $params Optional parameters
+     * @return mixed Query result or false in case of error
      */
     public function queryFetchBoth($sql, $params = array()) {
         try {
@@ -146,10 +146,10 @@ class Database {
 
 
 /**
- * Clase para el manejo y verificación de datos.
+ * Class for data handling and verification.
  */
 class Sanitize {
-    // Constantes para indicadores de verificación
+    // Constants for verification indicators.
     const PHONE = 'phone';
     const EMAIL = 'email';
     const PASSWORD_STRONG = 'password_strong';
@@ -157,10 +157,10 @@ class Sanitize {
     const ADDRESS = 'address';
 
     /**
-     * Método para procesar un arreglo de datos y evitar ataques XSS.
+     * Method to process an array of data and prevent XSS attacks.
      * 
-     * @param array $data Arreglo de datos a procesar
-     * @return array Arreglo de datos procesados
+     * @param array $data Array of data to process
+     * @return array Processed array of data
      */
     public static function scope($data) {
         $sanitizedData = [];
@@ -171,22 +171,22 @@ class Sanitize {
     }
 
     /**
-     * Método para eliminar caracteres especiales de una variable.
-     * Admite todos los alfabetos de todos los idiomas.
+     * Method to remove special characters from a variable.
+     * Supports all alphabets from all languages.
      * 
-     * @param string $value Variable a sanitizar
-     * @return string Variable sanitizada
+     * @param string $value Variable to sanitize
+     * @return string Sanitized variable
      */
     public static function sanitize($value) {
         return filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
     }
 
     /**
-     * Método para verificar un valor según un indicador específico.
+     * Method to verify a value according to a specific indicator.
      * 
-     * @param string $value Valor a verificar
-     * @param string $indicator Indicador para especificar qué se desea verificar
-     * @return bool True si es válido, false en caso contrario
+     * @param string $value Value to verify
+     * @param string $indicator Indicator to specify what is being verified
+     * @return bool True if valid, false otherwise
      */
     public static function check($value, $indicator) {
         switch ($indicator) {
@@ -210,7 +210,7 @@ class Sanitize {
         }
     }
 
-    // Funciones de validación para cada indicador
+    // Validation functions for each indicator.
 
     private static function validatePhone($value) {
         return preg_match('/^\+?\d{9,15}$/', $value);
@@ -235,11 +235,11 @@ class Sanitize {
 
 
 /**
- * Clase para el manejo de tokens CSRF.
+ * Class for CSRF token handling.
  */
 class Token {
     /**
-     * Método para verificar y/o iniciar sesión si no existe.
+     * Method to verify and/or start a session if it does not exist.
      */
     private static function checkSession() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -248,10 +248,10 @@ class Token {
     }
 
     /**
-     * Método para crear un token CSRF seguro.
+     * Method to create a secure CSRF token.
      * 
-     * @param string $name Nombre asignado al token
-     * @return mixed Token creado o false si ya existe un token con ese nombre
+     * @param string $name Name assigned to the token
+     * @return mixed Created token or false if a token with that name already exists
      */
     public static function create($name) {
         self::checkSession();
@@ -266,10 +266,10 @@ class Token {
     }
 
     /**
-     * Método para eliminar un token existente.
+     * Method to remove an existing token.
      * 
-     * @param string $name Nombre del token a eliminar
-     * @return bool True si se eliminó, false si el token no existe
+     * @param string $name Name of the token to remove
+     * @return bool True if removed, false if token does not exist
      */
     public static function delete($name) {
         self::checkSession();
@@ -283,11 +283,11 @@ class Token {
     }
 
     /**
-     * Método para procesar y validar un token enviado.
+     * Method to process and validate a sent token.
      * 
-     * @param string $token Token enviado para validación
-     * @param string $name Nombre del token a validar
-     * @return bool True si los tokens coinciden, false en caso contrario
+     * @param string $token Token sent for validation
+     * @param string $name Name of the token to validate
+     * @return bool True if tokens match, false otherwise
      */
     public static function process($token, $name) {
         self::checkSession();
@@ -300,12 +300,12 @@ class Token {
     }
 
     /**
-     * Método para procesar y validar un token enviado con tiempo límite.
+     * Method to process and validate a sent token with time limit.
      * 
-     * @param string $token Token enviado para validación
-     * @param string $name Nombre del token a validar
-     * @param int $time Tiempo en segundos desde la creación del token
-     * @return bool True si los tokens coinciden y el tiempo no ha expirado, false en caso contrario
+     * @param string $token Token sent for validation
+     * @param string $name Name of the token to validate
+     * @param int $time Time in seconds since the token was created
+     * @return bool True if tokens match and time has not expired, false otherwise
      */
     public static function processTime($token, $name, $time) {
         self::checkSession();
@@ -324,15 +324,15 @@ class Token {
 
 
 /**
- * Clase para el manejo de solicitudes Ajax.
+ * Class for handling Ajax requests.
  */
 class Ajax {
     /**
-     * Método para verificar el tipo de consulta y establecer el tipo de contenido.
+     * Method to verify the query type and set the content type.
      * 
-     * @param string $requestType Tipo de consulta (GET o POST)
-     * @param string $contentType Tipo de contenido a mostrar
-     * @return bool True si la consulta es válida y se estableció el tipo de contenido, false en caso contrario
+     * @param string $requestType Query type (GET or POST)
+     * @param string $contentType Type of content to display
+     * @return bool True if the query is valid and content type was set, false otherwise
      */
     public static function ajax_start($requestType, $contentType) {
         if ($_SERVER['REQUEST_METHOD'] !== strtoupper($requestType) || !self::is_same_origin()) {
@@ -344,9 +344,9 @@ class Ajax {
     }
 
     /**
-     * Método para verificar si la consulta se realiza desde el mismo servidor.
+     * Method to verify if the query is being made from the same server.
      * 
-     * @return bool True si la consulta se realiza desde el mismo servidor, false en caso contrario
+     * @return bool True if the query is being made from the same server, false otherwise
      */
     private static function is_same_origin() {
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $_SERVER['HTTP_HOST'];
@@ -354,23 +354,23 @@ class Ajax {
     }
 
     /**
-     * Método para devolver un error 400 en la respuesta Ajax.
+     * Method to return a 400 error in the Ajax response.
      */
     public static function ajax_error() {
         http_response_code(400);
     }
 
     /**
-     * Método para devolver un éxito 200 en la respuesta Ajax.
+     * Method to return a 200 success in the Ajax response.
      */
     public static function ajax_success() {
         http_response_code(200);
     }
 
     /**
-     * Método para verificar un token esperado en la consulta Ajax.
+     * Method to verify an expected token in the Ajax query.
      * 
-     * @return bool True si el token es válido, false en caso contrario o si la clase Token no está disponible
+     * @return bool True if the token is valid, false otherwise or if the Token class is not available
      */
     public static function ajax_token() {
         if (!class_exists('Token')) {
@@ -394,14 +394,14 @@ class Ajax {
 
 }
 
-// Clase para la generación de reportes de errores
+// Class for generating error reports.
 class Report {
     /**
-     * Maneja una excepción, envía al usuario a una página segura y genera un reporte de error si es necesario.
+     * Handles an exception, sends the user to a safe page, and generates an error report if necessary.
      *
-     * @param Exception $exception La excepción a manejar
-     * @param string $safePage La URL de la página segura a la que se enviará al usuario
-     * @param string $errorFolder La ruta de la carpeta donde se guardarán los reportes de error
+     * @param Exception $exception The exception to handle
+     * @param string $safePage The URL of the safe page to which the user will be sent
+     * @param string $errorFolder The path of the folder where error reports will be saved
      */
     public static function handleException($exception, $safePage, $errorFolder) {
         $errorHash = md5($exception->getMessage() . $exception->getCode() . $exception->getFile() . $exception->getLine());

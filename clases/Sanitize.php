@@ -1,9 +1,9 @@
 <?php
 /**
- * Clase para el manejo y verificación de datos.
+ * Class for data handling and verification.
  */
 class Sanitize {
-    // Constantes para indicadores de verificación
+    // Constants for verification indicators.
     const PHONE = 'phone';
     const EMAIL = 'email';
     const PASSWORD_STRONG = 'password_strong';
@@ -11,10 +11,10 @@ class Sanitize {
     const ADDRESS = 'address';
 
     /**
-     * Método para procesar un arreglo de datos y evitar ataques XSS.
+     * Method to process an array of data and prevent XSS attacks.
      * 
-     * @param array $data Arreglo de datos a procesar
-     * @return array Arreglo de datos procesados
+     * @param array $data Array of data to process
+     * @return array Processed array of data
      */
     public static function scope($data) {
         $sanitizedData = [];
@@ -25,22 +25,22 @@ class Sanitize {
     }
 
     /**
-     * Método para eliminar caracteres especiales de una variable.
-     * Admite todos los alfabetos de todos los idiomas.
+     * Method to remove special characters from a variable.
+     * Supports all alphabets from all languages.
      * 
-     * @param string $value Variable a sanitizar
-     * @return string Variable sanitizada
+     * @param string $value Variable to sanitize
+     * @return string Sanitized variable
      */
     public static function sanitize($value) {
         return filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
     }
 
     /**
-     * Método para verificar un valor según un indicador específico.
+     * Method to verify a value according to a specific indicator.
      * 
-     * @param string $value Valor a verificar
-     * @param string $indicator Indicador para especificar qué se desea verificar
-     * @return bool True si es válido, false en caso contrario
+     * @param string $value Value to verify
+     * @param string $indicator Indicator to specify what is being verified
+     * @return bool True if valid, false otherwise
      */
     public static function check($value, $indicator) {
         switch ($indicator) {
@@ -64,7 +64,7 @@ class Sanitize {
         }
     }
 
-    // Funciones de validación para cada indicador
+    // Validation functions for each indicator.
 
     private static function validatePhone($value) {
         return preg_match('/^\+?\d{9,15}$/', $value);

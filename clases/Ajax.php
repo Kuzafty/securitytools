@@ -1,14 +1,14 @@
 <?php
 /**
- * Clase para el manejo de solicitudes Ajax.
+ * Class for handling Ajax requests.
  */
 class Ajax {
     /**
-     * Método para verificar el tipo de consulta y establecer el tipo de contenido.
+     * Method to verify the query type and set the content type.
      * 
-     * @param string $requestType Tipo de consulta (GET o POST)
-     * @param string $contentType Tipo de contenido a mostrar
-     * @return bool True si la consulta es válida y se estableció el tipo de contenido, false en caso contrario
+     * @param string $requestType Query type (GET or POST)
+     * @param string $contentType Type of content to display
+     * @return bool True if the query is valid and content type was set, false otherwise
      */
     public static function ajax_start($requestType, $contentType) {
         if ($_SERVER['REQUEST_METHOD'] !== strtoupper($requestType) || !self::is_same_origin()) {
@@ -20,9 +20,9 @@ class Ajax {
     }
 
     /**
-     * Método para verificar si la consulta se realiza desde el mismo servidor.
+     * Method to verify if the query is being made from the same server.
      * 
-     * @return bool True si la consulta se realiza desde el mismo servidor, false en caso contrario
+     * @return bool True if the query is being made from the same server, false otherwise
      */
     private static function is_same_origin() {
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $_SERVER['HTTP_HOST'];
@@ -30,23 +30,23 @@ class Ajax {
     }
 
     /**
-     * Método para devolver un error 400 en la respuesta Ajax.
+     * Method to return a 400 error in the Ajax response.
      */
     public static function ajax_error() {
         http_response_code(400);
     }
 
     /**
-     * Método para devolver un éxito 200 en la respuesta Ajax.
+     * Method to return a 200 success in the Ajax response.
      */
     public static function ajax_success() {
         http_response_code(200);
     }
 
     /**
-     * Método para verificar un token esperado en la consulta Ajax.
+     * Method to verify an expected token in the Ajax query.
      * 
-     * @return bool True si el token es válido, false en caso contrario o si la clase Token no está disponible
+     * @return bool True if the token is valid, false otherwise or if the Token class is not available
      */
     public static function ajax_token() {
         if (!class_exists('Token')) {

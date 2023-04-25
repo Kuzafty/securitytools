@@ -1,12 +1,12 @@
 <?php
-// Clase para la generación de reportes de errores
+// Class for generating error reports.
 class Report {
     /**
-     * Maneja una excepción, envía al usuario a una página segura y genera un reporte de error si es necesario.
+     * Handles an exception, sends the user to a safe page, and generates an error report if necessary.
      *
-     * @param Exception $exception La excepción a manejar
-     * @param string $safePage La URL de la página segura a la que se enviará al usuario
-     * @param string $errorFolder La ruta de la carpeta donde se guardarán los reportes de error
+     * @param Exception $exception The exception to handle
+     * @param string $safePage The URL of the safe page to which the user will be sent
+     * @param string $errorFolder The path of the folder where error reports will be saved
      */
     public static function handleException($exception, $safePage, $errorFolder) {
         $errorHash = md5($exception->getMessage() . $exception->getCode() . $exception->getFile() . $exception->getLine());

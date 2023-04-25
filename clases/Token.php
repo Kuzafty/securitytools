@@ -1,10 +1,10 @@
 <?php 
 /**
- * Clase para el manejo de tokens CSRF.
+ * Class for CSRF token handling.
  */
 class Token {
     /**
-     * Método para verificar y/o iniciar sesión si no existe.
+     * Method to verify and/or start a session if it does not exist.
      */
     private static function checkSession() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -13,10 +13,10 @@ class Token {
     }
 
     /**
-     * Método para crear un token CSRF seguro.
+     * Method to create a secure CSRF token.
      * 
-     * @param string $name Nombre asignado al token
-     * @return mixed Token creado o false si ya existe un token con ese nombre
+     * @param string $name Name assigned to the token
+     * @return mixed Created token or false if a token with that name already exists
      */
     public static function create($name) {
         self::checkSession();
@@ -31,10 +31,10 @@ class Token {
     }
 
     /**
-     * Método para eliminar un token existente.
+     * Method to remove an existing token.
      * 
-     * @param string $name Nombre del token a eliminar
-     * @return bool True si se eliminó, false si el token no existe
+     * @param string $name Name of the token to remove
+     * @return bool True if removed, false if token does not exist
      */
     public static function delete($name) {
         self::checkSession();
@@ -48,11 +48,11 @@ class Token {
     }
 
     /**
-     * Método para procesar y validar un token enviado.
+     * Method to process and validate a sent token.
      * 
-     * @param string $token Token enviado para validación
-     * @param string $name Nombre del token a validar
-     * @return bool True si los tokens coinciden, false en caso contrario
+     * @param string $token Token sent for validation
+     * @param string $name Name of the token to validate
+     * @return bool True if tokens match, false otherwise
      */
     public static function process($token, $name) {
         self::checkSession();
@@ -65,12 +65,12 @@ class Token {
     }
 
     /**
-     * Método para procesar y validar un token enviado con tiempo límite.
+     * Method to process and validate a sent token with time limit.
      * 
-     * @param string $token Token enviado para validación
-     * @param string $name Nombre del token a validar
-     * @param int $time Tiempo en segundos desde la creación del token
-     * @return bool True si los tokens coinciden y el tiempo no ha expirado, false en caso contrario
+     * @param string $token Token sent for validation
+     * @param string $name Name of the token to validate
+     * @param int $time Time in seconds since the token was created
+     * @return bool True if tokens match and time has not expired, false otherwise
      */
     public static function processTime($token, $name, $time) {
         self::checkSession();
