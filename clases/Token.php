@@ -78,9 +78,9 @@ class Token {
             return false;
         }
 
-        if ((time() - $_SESSION[$name . '_time']) > $time) {
+        if ((time() - $_SESSION[$name . '_time']) < $time) {
             return false;
-        }
+        }   
 
         self::delete($name);
         return true;
