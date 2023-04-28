@@ -25,9 +25,11 @@ class Ajax {
      * @return bool True if the query is being made from the same server, false otherwise
      */
     private static function is_same_origin() {
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $_SERVER['HTTP_HOST'];
+        $http_origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        $https_origin = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' . $_SERVER['HTTP_HOST'] : '';
+        $origin = $http_origin ?: $https_origin ?: $_SERVER['HTTP_HOST'];
         return $origin === $_SERVER['HTTP_HOST'];
-    }
+    }    
 
     /**
      * Method to return a 400 error in the Ajax response.

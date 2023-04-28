@@ -10,7 +10,7 @@ class Database {
     private $db_name; // It contains the name of the database.
     private $username; // It contains the username for the database connection.
     private $password; // It contains the password for the database connection.
-    public $conn; // It contains the PDO connection object.
+    public $conn; // It contains the \PDO connection object.
     public $exception; // It contains the exception in case of an error.
 
     /**
@@ -38,10 +38,10 @@ class Database {
     private function connect() {
         $this->conn = null;
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn = new \PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             return true;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -58,9 +58,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -77,9 +77,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -96,9 +96,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -115,9 +115,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_NUM);
+            $result = $stmt->fetchAll(\PDO::FETCH_NUM);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -134,9 +134,9 @@ class Database {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_BOTH);
+            $result = $stmt->fetchAll(\PDO::FETCH_BOTH);
             return $result;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->exception = $e;
             return false;
         }
@@ -178,7 +178,10 @@ class Sanitize {
      * @return string Sanitized variable
      */
     public static function sanitize($value) {
-        return filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        $input = trim($value);
+        $input = preg_replace('/[^\p{L}\p{N}\p{M}\p{Zs}]/u', '', $input);
+        $input = preg_replace('/[\p{Zs}]/u', ' ', $input);
+        return $input;
     }
 
     /**
@@ -313,9 +316,9 @@ class Token {
             return false;
         }
 
-        if ((time() - $_SESSION[$name . '_time']) > $time) {
+        if ((time() - $_SESSION[$name . '_time']) < $time) {
             return false;
-        }
+        }   
 
         self::delete($name);
         return true;
@@ -349,9 +352,22 @@ class Ajax {
      * @return bool True if the query is being made from the same server, false otherwise
      */
     private static function is_same_origin() {
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $_SERVER['HTTP_HOST'];
-        return $origin === $_SERVER['HTTP_HOST'];
+        if (!isset($_SERVER['HTTP_REFERER'])) {
+            // Si la petición no incluye un referer, entonces no se puede verificar si es del mismo origen
+            return false;
+        }
+        
+        // Se obtiene el origen de la petición
+        $referer = parse_url($_SERVER['HTTP_REFERER']);
+        $referer_origin = $referer['scheme'] . '://' . $referer['host'];
+        
+        // Se obtiene el origen del servidor que recibe la petición
+        $server_origin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}";
+        
+        // Se compara el origen de la petición con el origen del servidor que recibe la petición
+        return ($referer_origin === $server_origin);
     }
+    
 
     /**
      * Method to return a 400 error in the Ajax response.
@@ -368,28 +384,55 @@ class Ajax {
     }
 
     /**
-     * Method to verify an expected token in the Ajax query.
-     * 
-     * @return bool True if the token is valid, false otherwise or if the Token class is not available
+     * Sends an HTTP 200 (success) or 400 (error) response based on the value of a boolean expression.
+     *
+     * @param bool $expression Boolean expression to determine the HTTP result.
+     * @return void
      */
-    public static function ajax_token() {
-        if (!class_exists('Token')) {
+    public static function ajax_value($expression) {
+        if ($expression) {
+            self::ajax_success();
+        } else {
+            self::ajax_error();
+        }
+    }
+
+    /**
+     * Verifies the validity of a CSRF token sent in an HTTP request.
+     *
+     * @param string $token_name Name of the token to verify.
+     * @param string $source HTTP request method where to look for the token (post, get, cookie, request). Default is 'post'.
+     * @param int|null $time Time in seconds to check if it has passed since the creation of the token. Default is null.
+     * @return bool Returns true if the token is valid, false otherwise.
+     */
+    public static function ajax_token($token_name, $source = 'post', $time = null) {
+
+        switch (strtolower($source)) {
+            case 'post':
+                $token_value = isset($_POST[$token_name]) ? $_POST[$token_name] : null;
+                break;
+            case 'get':
+                $token_value = isset($_GET[$token_name]) ? $_GET[$token_name] : null;
+                break;
+            case 'cookie':
+                $token_value = isset($_COOKIE[$token_name]) ? $_COOKIE[$token_name] : null;
+                break;
+            case 'request':
+                $token_value = isset($_REQUEST[$token_name]) ? $_REQUEST[$token_name] : null;
+                break;
+            default:
+                return false;
+        }
+
+        if ($token_value === null) {
             return false;
         }
 
-        $tokenName = isset($_REQUEST['token_name']) ? $_REQUEST['token_name'] : null;
-        $tokenValue = isset($_REQUEST['token_value']) ? $_REQUEST['token_value'] : null;
-        $tokenTime = isset($_REQUEST['token_time']) ? intval($_REQUEST['token_time']) : null;
-
-        if ($tokenName && $tokenValue) {
-            if ($tokenTime !== null) {
-                return Token::processTime($tokenValue, $tokenName, $tokenTime);
-            } else {
-                return Token::process($tokenValue, $tokenName);
-            }
+        if ($time !== null) {
+            return Token::processTime($token_value, $token_name, $time);
+        } else {
+            return Token::process($token_value, $token_name);
         }
-
-        return false;
     }
 
 }

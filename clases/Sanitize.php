@@ -32,7 +32,10 @@ class Sanitize {
      * @return string Sanitized variable
      */
     public static function sanitize($value) {
-        return filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        $input = trim($value);
+        $input = preg_replace('/[^\p{L}\p{N}\p{M}\p{Zs}]/u', '', $input);
+        $input = preg_replace('/[\p{Zs}]/u', ' ', $input);
+        return $input;
     }
 
     /**
