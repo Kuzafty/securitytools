@@ -20,7 +20,7 @@ class Database {
     * @param string $db_name Database name
     * @param string $username Database username
     * @param string $password Database password
-    * @return bool Connection result
+    * @return bool Connection result 
     */
     public function __construct($host, $db_name, $username, $password) {
         $this->host = $host;
@@ -282,6 +282,15 @@ class Token {
 
         unset($_SESSION[$name]);
         unset($_SESSION[$name . '_time']);
+
+        if(isset($_SESSION[$name . '_timer'])){
+            unset($_SESSION[$name . '_timer']);
+        }
+
+        if(isset($_SESSION[$name . '_count'])){
+            unset($_SESSION[$name . '_count']);
+        }
+
         return true;
     }
 
@@ -323,6 +332,66 @@ class Token {
         self::delete($name);
         return true;
     }
+
+    /**
+     * Method to process and validate a sent token with time aument
+     * 
+     * @param string $token Token sent for validation
+     * @param string $name Name of the token to validate
+     * @param int $time Time in seconds since the token was created
+     * @param int $nUp The number of times to add second to $time
+     * @param int $threshold Seconds to reset aument
+     * @return bool true if token is valid, false otherwise
+     */
+    public static function processLimited($token, $name, $time, $nUp, $threshold){
+        self::checkSession();
+        if (!isset($_SESSION[$name]) || $token !== $_SESSION[$name]) {
+            return false;
+        }
+
+        if (!isset($_SESSION[$name . '_count']) || !isset($_SESSION[$name . '_timer'])){
+            $_SESSION[$name . '_count'] = 0;
+            $_SESSION[$name . '_timer'] = 0;
+        }
+
+        $_SESSION[$name . '_count']++;
+
+        if($_SESSION[$name . '_count'] == $nUp){
+            $_SESSION[$name . '_timer']++;
+            $_SESSION[$name . '_count'] = 0;
+        }
+
+        if ((time() - $_SESSION[$name . '_time']) < ($time+$_SESSION[$name . '_timer'])) {
+            return false;
+        }
+
+        if((time() - $_SESSION[$name . '_time']) > $threshold){
+            $_SESSION[$name . '_count'] = 0;
+            $_SESSION[$name . '_timer'] = 0;
+        }
+
+        return self::unsetToken($name);
+        
+    }
+
+    /**
+     * Method to solve processLimited new tokens
+     * 
+     * @param string $name token to reset
+     * @return bool true if token was deleted
+     */
+    public static function unsetToken($name) {
+        self::checkSession();
+        if (!isset($_SESSION[$name])) {
+            return false;
+        }
+
+        unset($_SESSION[$name]);
+        unset($_SESSION[$name . '_time']);
+
+        return true;
+    }
+
 }
 
 
@@ -437,33 +506,93 @@ class Ajax {
 
 }
 
-// Class for generating error reports.
-class Report {
+/**
+ * Clase para el manejo de cookies.
+ */
+class Cookie {
+
     /**
-     * Handles an exception, sends the user to a safe page, and generates an error report if necessary.
+     * Crea una cookie.
      *
-     * @param Exception $exception The exception to handle
-     * @param string $safePage The URL of the safe page to which the user will be sent
-     * @param string $errorFolder The path of the folder where error reports will be saved
+     * @param string $name Nombre de la cookie.
+     * @param mixed $value Valor de la cookie.
+     * @param string|null $expiration Fecha de expiración de la cookie, en formato Día/Mes/Año o Horas/Minutos/Segundos.
+     * @param string|null $format Formato del parámetro de expiración, 'date' para Día/Mes/Año o 'time' para Horas/Minutos/Segundos.
+     * @param bool $omit Omite la limpieza y escape de caracteres.
+     * @param bool $secure Almacena un hash de la cookie en una variable de sesión.
+     * @return bool Returns false if something went wrong
      */
-    public static function handleException($exception, $safePage, $errorFolder) {
-        $errorHash = md5($exception->getMessage() . $exception->getCode() . $exception->getFile() . $exception->getLine());
-
-        if (!file_exists($errorFolder . '/' . $errorHash . '.json')) {
-            $errorReport = [
-                'message' => $exception->getMessage(),
-                'code' => $exception->getCode(),
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => $exception->getTrace(),
-                'timestamp' => date('Y-m-d H:i:s')
-            ];
-
-            file_put_contents($errorFolder . '/' . $errorHash . '.json', json_encode($errorReport));
+    public static function create($name, $value, $secure = true, $expiration = null, $format = 'time', $omit = false) {
+        $expires = 0;
+    
+        if ($expiration !== null) {
+            if ($format === 'date') {
+                $date = \DateTime::createFromFormat('d/m/Y', $expiration);
+                if ($date === false) {
+                    return false;
+                }
+                $expires = $date->getTimestamp();
+            } elseif ($format === 'time') {
+                $time = \DateTime::createFromFormat('H:i:s', $expiration);
+                if ($time === false) {
+                    return false;
+                }
+                $expires = time() + $time->getTimestamp() - $time->setTime(0, 0, 0)->getTimestamp();
+            } else {
+                return false;
+            }
+        }
+    
+        if (!$omit) {
+            $name = Sanitize::sanitize(Sanitize::scope([$name]))[0];
+            $value = Sanitize::sanitize(Sanitize::scope([$value]))[0];
+        }
+    
+        if (!setcookie($name, $value, $expires)) {
+            return false;
+        }
+    
+        if ($secure) {
+            if (!isset($_SESSION)) {
+                session_start();
+            }
+            $_SESSION[$name . '_hash'] = hash('sha256', $value);
         }
 
-        header('Location: ' . $safePage);
-        exit();
+        return true;
+
+    }    
+
+    /**
+     * Obtiene el valor de una cookie.
+     *
+     * @param string $name Nombre de la cookie.
+     * @return mixed Valor de la cookie, o null si no existe.
+     */
+    public static function get($name) {
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+    }
+
+    /**
+     * Elimina una cookie.
+     *
+     * @param string $name Nombre de la cookie.
+     * @param bool $secure Elimina el hash de la cookie en la variable de sesión.
+     * @return bool True if cookie was deleted, false otherwise.
+     */
+    public static function delete($name, $secure = true) {
+        if (isset($_COOKIE[$name])) {
+            if (!setcookie($name, '', time() - 3600)) {
+                return false;
+            }
+            if ($secure) {
+                if (isset($_SESSION[$name . '_hash'])) {
+                    unset($_SESSION[$name . '_hash']);
+                }
+            }
+        } else {
+            return false;
+        }
     }
 }
 
