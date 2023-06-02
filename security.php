@@ -269,6 +269,21 @@ class Token {
     }
 
     /**
+     * 
+     * Method to get a CSRF token value
+     * 
+     * @param string $name Name assigned to the token
+     * @return mixed Token value or false if the token doesn't exist
+     */
+    public static function get($name){
+        self::checkSession();
+        if (!isset($_SESSION[$name])) {
+            return false;
+        }
+        return $_SESSION[$name];
+    }
+
+    /**
      * Method to remove an existing token.
      * 
      * @param string $name Name of the token to remove
@@ -592,6 +607,75 @@ class Cookie {
             }
         } else {
             return false;
+        }
+    }
+}
+
+/**
+ * Clase para el manejo de sesiones
+ */
+class loged {
+    /**
+     * Previene el acceso de usuarios no autorizados a zonas especificas
+     * 
+     * @param string $preventPage Zona de información
+     * @return null
+     */
+    public static function prevent($preventPage){
+        if(session_status() === PHP_SESSION_NONE){
+            header('Location: '.$preventPage);
+            exit();
+        }
+    }
+
+    /**
+     * Previene el acceso a usuarios no autorizados a zonas especificas.
+     * Adicionalmente comprueba la existencia de una variable
+     * 
+     * @param string $preventPage Zona de información
+     * @param string $name Nombre de la variable
+     * @return null
+     */
+    public static function preventExist($preventPage, $name){
+        self::prevent($preventPage);
+        if(!isset($_SESSION[$name])){
+            header('Location: '.$preventPage);
+            exit();
+        }
+    }
+
+    /**
+     * Previene el acceso a usuarios no autorizados a zonas especificas.
+     * Adicionalmente comprueba la existencia de algun dato.
+     * 
+     * @param string $preventPage Zona de información
+     * @param string $name Nombre de la variable
+     * @param string $value Valor esperado
+     * @return null
+     */
+    public static function preventCheck($preventPage, $name, $value){
+        self::preventExist($preventPage, $name);
+        if($_SESSION[$name] != $value){
+            header('Location: '.$preventPage);
+            exit();
+        }
+    }
+
+    /**
+     * Previene el acceso a usuarios no autorizados a zonas especificas.
+     * Adicionalmente comprueba la existencia de varios datos.
+     * 
+     * @param string $preventPage Zona de información
+     * @param array $names Nombres de las variables
+     * @return null
+     */
+    public static function preventExists($preventPage, $names){
+        self::prevent($preventPage);
+        foreach($names as $name){
+            if(!isset($_SESSION[$name])){
+                header('Location: '.$preventPage);
+                exit();
+            }
         }
     }
 }
